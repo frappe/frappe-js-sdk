@@ -1,15 +1,15 @@
-import { AxiosInstance, AxiosProgressEvent } from 'axios';
+import { FetchClient } from '../utils/fetch';
 
 import { Error } from '../frappe_app/types';
 import { FileArgs } from './types';
-import { getRequestHeaders } from '../utils/axios';
+import { getRequestHeaders } from '../utils/fetch';
 
 export class FrappeFileUpload {
   /** URL of the Frappe App instance */
   private readonly appURL: string;
 
-  /** Axios instance */
-  readonly axios: AxiosInstance;
+  /** Fetch client instance */
+  readonly fetch: FetchClient;
 
   /** Whether to use the token based auth */
   readonly useToken: boolean;
@@ -21,22 +21,22 @@ export class FrappeFileUpload {
   readonly tokenType?: 'Bearer' | 'token';
 
   /** Custom Headers to be passed in request */
-  readonly customHeaders?: object
+  readonly customHeaders?: object;
 
   constructor(
     appURL: string,
-    axios: AxiosInstance,
+    fetch: FetchClient,
     useToken?: boolean,
     token?: () => string,
     tokenType?: 'Bearer' | 'token',
     customHeaders?: object
   ) {
     this.appURL = appURL;
-    this.axios = axios;
+    this.fetch = fetch;
     this.useToken = useToken ?? false;
     this.token = token;
     this.tokenType = tokenType;
-    this.customHeaders = customHeaders
+    this.customHeaders = customHeaders;
   }
 
   /**
@@ -46,9 +46,16 @@ export class FrappeFileUpload {
    * @param {VoidFunction} onProgress file upload progress
    * @returns Promise which resolves with the file object
    */
-  async uploadFile<T = any>(file: File, args: FileArgs<T>, onProgress?: (bytesUploaded: number, totalBytes?: number, progress?: AxiosProgressEvent) => void, apiPath: string = 'upload_file') {
+  async uploadFile<T = any>(
+    file: File,
+    args: FileArgs<T>,
+    onProgress?: (bytesUploaded: number, totalBytes?: number) => void,
+    apiPath: string = 'upload_file'
+  ) {
     const formData = new FormData();
-    if (file) formData.append('file', file, file.name);
+    if (file) {
+      formData.append('file', file, file.name);
+    }
 
     const { isPrivate, folder, file_url, doctype, docname, fieldname, otherData } = args;
 
@@ -76,26 +83,82 @@ export class FrappeFileUpload {
       });
     }
 
-    return this.axios
-      .post(`/api/method/${apiPath}`, formData, {
-        onUploadProgress: (progressEvent) => {
-          if (onProgress) {
-            onProgress(progressEvent.loaded, progressEvent.total, progressEvent);
-          }
-        },
-        headers: {
-          ...getRequestHeaders(this.useToken, this.tokenType, this.token, this.appURL, this.customHeaders),
-          'Content-Type': 'multipart/form-data',
-        }
-      })
-      .catch((error) => {
+    const url = `${this.appURL}/api/method/${apiPath}`;
+    const headers = getRequestHeaders(this.useToken, this.tokenType, this.token, this.appURL, this.customHeaders);
+    delete (headers as any)['Content-Type'];
+
+    if (onProgress) {
+      return this._uploadWithProgress<T>(url, formData, headers, onProgress);
+    }
+
+    return this.fetch
+      .post(`/api/method/${apiPath}`, formData)
+      .catch((error: Error) => {
         throw {
-          ...error.response.data,
-          httpStatus: error.response.status,
-          httpStatusText: error.response.statusText,
-          message: error.response.data.message ?? 'There was an error while uploading the file.',
-          exception: error.response.data.exception ?? '',
+          ...error,
+          message: error.message ?? 'There was an error while uploading the file.',
         } as Error;
       });
+  }
+
+  private _uploadWithProgress<T>(
+    url: string,
+    formData: FormData,
+    headers: Record<string, string>,
+    onProgress: (bytesUploaded: number, totalBytes?: number) => void
+  ): Promise<T> {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', url, true);
+      xhr.withCredentials = true;
+
+      Object.entries(headers).forEach(([key, value]) => {
+        xhr.setRequestHeader(key, value);
+      });
+
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          onProgress(event.loaded, event.total);
+        } else {
+          onProgress(event.loaded, undefined);
+        }
+      };
+
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            const response = JSON.parse(xhr.responseText);
+            resolve(response as T);
+          } catch {
+            resolve(xhr.responseText as unknown as T);
+          }
+        } else {
+          let errorData: any = {};
+          try {
+            errorData = JSON.parse(xhr.responseText);
+          } catch {
+            errorData = {};
+          }
+          reject({
+            ...errorData,
+            httpStatus: xhr.status,
+            httpStatusText: xhr.statusText,
+            message: errorData.message ?? 'There was an error while uploading the file.',
+            exception: errorData.exception ?? '',
+          } as Error);
+        }
+      };
+
+      xhr.onerror = () => {
+        reject({
+          httpStatus: xhr.status,
+          httpStatusText: xhr.statusText,
+          message: 'There was a network error while uploading the file.',
+          exception: '',
+        } as Error);
+      };
+
+      xhr.send(formData);
+    });
   }
 }

@@ -23,8 +23,6 @@ We plan to add the following features in the future:
 
 - Support for common functions like `exists` in the database.
 
-The library uses [Axios](https://axios-http.com) under the hood to make API calls to your Frappe backend.
-
 ## Maintainers
 
 | Maintainer     | GitHub                                          | Social                                                       |

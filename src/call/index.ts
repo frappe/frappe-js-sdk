@@ -1,4 +1,4 @@
-import { AxiosInstance } from 'axios';
+import { FetchClient } from '../utils/fetch';
 
 import { Error } from '../frappe_app/types';
 
@@ -6,8 +6,8 @@ export class FrappeCall {
   /** URL of the Frappe App instance */
   private readonly appURL: string;
 
-  /** Axios instance */
-  readonly axios: AxiosInstance;
+  /** Fetch client instance */
+  readonly fetch: FetchClient;
 
   /** Whether to use the token based auth */
   readonly useToken: boolean;
@@ -20,13 +20,13 @@ export class FrappeCall {
 
   constructor(
     appURL: string,
-    axios: AxiosInstance,
+    fetch: FetchClient,
     useToken?: boolean,
     token?: () => string,
     tokenType?: 'Bearer' | 'token',
   ) {
     this.appURL = appURL;
-    this.axios = axios;
+    this.fetch = fetch;
     this.useToken = useToken ?? false;
     this.token = token;
     this.tokenType = tokenType;
@@ -34,79 +34,62 @@ export class FrappeCall {
 
   /** Makes a GET request to the specified endpoint */
   async get<T = any>(path: string, params?: Record<string, any>): Promise<T> {
-
-    const encodedParams = new URLSearchParams();
+    const encodedParams: Record<string, any> = {};
     // TEMP Fix Issue #50
     if (params) {
-      Object.entries(params).forEach(param => {
-        const [key, value] = param;
+      Object.entries(params).forEach(([key, value]) => {
         if (value !== null && value !== undefined) {
-          const val = typeof value === 'object' ? JSON.stringify(value) : value;
-          encodedParams.set(key, val);
+          encodedParams[key] = typeof value === 'object' ? JSON.stringify(value) : value;
         }
-      })
+      });
     }
 
-    return this.axios
-      .get(`/api/method/${path}`, {
-        params: encodedParams,
-      })
-      .then((res) => res.data as T)
-      .catch((error) => {
+    return this.fetch
+      .get<T>(`/api/method/${path}`, { params: encodedParams })
+      .then((res) => res)
+      .catch((error: Error) => {
         throw {
-          ...error.response.data,
-          httpStatus: error.response.status,
-          httpStatusText: error.response.statusText,
-          message: error.response.data.message ?? 'There was an error.',
-          exception: error.response.data.exception ?? '',
+          ...error,
+          message: error.message ?? 'There was an error.',
         } as Error;
       });
   }
 
   /** Makes a POST request to the specified endpoint */
   async post<T = any>(path: string, params?: any): Promise<T> {
-    return this.axios
-      .post(`/api/method/${path}`, { ...params })
-      .then((res) => res.data as T)
-      .catch((error) => {
+    return this.fetch
+      .post<T>(`/api/method/${path}`, { ...params })
+      .then((res) => res)
+      .catch((error: Error) => {
         throw {
-          ...error.response.data,
-          httpStatus: error.response.status,
-          httpStatusText: error.response.statusText,
-          message: error.response.data.message ?? 'There was an error.',
-          exception: error.response.data.exception ?? '',
+          ...error,
+          message: error.message ?? 'There was an error.',
         } as Error;
       });
   }
 
   /** Makes a PUT request to the specified endpoint */
   async put<T = any>(path: string, params?: any): Promise<T> {
-    return this.axios
-      .put(`/api/method/${path}`, { ...params })
-      .then((res) => res.data as T)
-      .catch((error) => {
+    return this.fetch
+      .put<T>(`/api/method/${path}`, { ...params })
+      .then((res) => res)
+      .catch((error: Error) => {
         throw {
-          ...error.response.data,
-          httpStatus: error.response.status,
-          httpStatusText: error.response.statusText,
-          message: error.response.data.message ?? 'There was an error.',
-          exception: error.response.data.exception ?? '',
+          ...error,
+          message: error.message ?? 'There was an error.',
         } as Error;
       });
   }
 
   /** Makes a DELETE request to the specified endpoint */
   async delete<T = any>(path: string, params?: any): Promise<T> {
-    return this.axios
-      .delete(`/api/method/${path}`, { params })
-      .then((res) => res.data as T)
-      .catch((error) => {
+    return this.fetch
+      .delete<T>(`/api/method/${path}`, { params })
+      .then((res) => res)
+      .catch((error: Error) => {
         throw {
-          ...error.response.data,
-          httpStatus: error.response.status,
-          httpStatusText: error.response.statusText,
-          message: error.response.data.message ?? 'There was an error.',
-          exception: error.response.data.exception ?? '',
+          ...error,
+          message: error.message ?? 'There was an error.',
         } as Error;
       });
   }

@@ -1,4 +1,4 @@
-import { AxiosInstance } from 'axios';
+import { FetchClient } from '../utils/fetch';
 
 import { Error } from '../frappe_app/types';
 import { AuthCredentials, AuthResponse, OTPCredentials, UserPassCredentials } from './types';
@@ -7,8 +7,8 @@ export class FrappeAuth {
   /** URL of the Frappe App instance */
   private readonly appURL: string;
 
-  /** Axios instance */
-  readonly axios: AxiosInstance;
+  /** Fetch client instance */
+  readonly fetch: FetchClient;
 
   /** Whether to use the token based auth */
   readonly useToken: boolean;
@@ -21,13 +21,13 @@ export class FrappeAuth {
 
   constructor(
     appURL: string,
-    axios: AxiosInstance,
+    fetch: FetchClient,
     useToken?: boolean,
     token?: () => string,
     tokenType?: 'Bearer' | 'token',
   ) {
     this.appURL = appURL;
-    this.axios = axios;
+    this.fetch = fetch;
     this.useToken = useToken ?? false;
     this.token = token;
     this.tokenType = tokenType;
@@ -35,64 +35,54 @@ export class FrappeAuth {
 
   /** Logs in the user using username and password */
   async loginWithUsernamePassword(credentials: AuthCredentials): Promise<AuthResponse> {
-
-    return this.axios
-      .post('/api/method/login', {
+    return this.fetch
+      .post<{ message?: string } & AuthResponse>('/api/method/login', {
         usr: (credentials as UserPassCredentials).username,
         pwd: (credentials as UserPassCredentials).password,
         otp: (credentials as OTPCredentials).otp,
         tmp_id: (credentials as OTPCredentials).tmp_id,
         device: credentials.device,
       })
-      .then((res) => res.data as AuthResponse)
-      .catch((error) => {
+      .then((res) => res as AuthResponse)
+      .catch((error: Error) => {
         throw {
-          ...error.response.data,
-          httpStatus: error.response.status,
-          httpStatusText: error.response.statusText,
-          message: error.response.data.message ?? 'There was an error while logging in',
-          exception: error.response.data.exception ?? '',
+          ...error,
+          message: error.message ?? 'There was an error while logging in',
         } as Error;
       });
   }
 
   /** Gets the currently logged in user */
   async getLoggedInUser(): Promise<string> {
-    return this.axios
-      .get('/api/method/frappe.auth.get_logged_user')
-      .then((res) => res.data.message)
-      .catch((error) => {
+    return this.fetch
+      .get<{ message: string }>('/api/method/frappe.auth.get_logged_user')
+      .then((res) => res.message)
+      .catch((error: Error) => {
         throw {
-          ...error.response.data,
-          httpStatus: error.response.status,
-          httpStatusText: error.response.statusText,
+          ...error,
           message: 'There was an error while fetching the logged in user',
-          exception: error.response.data.exception ?? '',
         } as Error;
       });
   }
 
   /** Logs the user out */
   async logout(): Promise<void> {
-    return this.axios
+    return this.fetch
       .post('/api/method/logout', {})
       .then(() => {
         return;
       })
-      .catch((error) => {
+      .catch((error: Error) => {
         throw {
-          ...error.response.data,
-          httpStatus: error.response.status,
-          httpStatusText: error.response.statusText,
-          message: error.response.data.message ?? 'There was an error while logging out',
-          exception: error.response.data.exception ?? '',
+          ...error,
+          message: error.message ?? 'There was an error while logging out',
         } as Error;
       });
   }
 
   /** Sends password reset email */
   async forgetPassword(user: string): Promise<void> {
-    return this.axios
+    return this.fetch
       .post('/', {
         cmd: 'frappe.core.doctype.user.user.reset_password',
         user,
@@ -100,13 +90,10 @@ export class FrappeAuth {
       .then(() => {
         return;
       })
-      .catch((error) => {
+      .catch((error: Error) => {
         throw {
-          ...error.response.data,
-          httpStatus: error.response.status,
-          httpStatusText: error.response.statusText,
-          message: error.response.data.message ?? 'There was an error sending password reset email.',
-          exception: error.response.data.exception ?? '',
+          ...error,
+          message: error.message ?? 'There was an error sending password reset email.',
         } as Error;
       });
   }
