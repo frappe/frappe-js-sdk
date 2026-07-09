@@ -62,24 +62,25 @@ export class FrappeDB {
    */
   async getDocList<T = any, K = FrappeDoc<T>>(doctype: string, args?: GetDocListArgs<K>) {
     let params = {};
+    const queryParams = new URLSearchParams();
 
     if (args) {
       const { fields, filters, orFilters, orderBy, limit, limit_start, groupBy, asDict = true } = args;
       const orderByString = orderBy ? `${String(orderBy?.field)} ${orderBy?.order ?? 'asc'}` : '';
       params = {
-        fields: fields ? JSON.stringify(fields) : undefined,
-        filters: filters ? JSON.stringify(filters) : undefined,
-        or_filters: orFilters ? JSON.stringify(orFilters) : undefined,
         order_by: orderByString,
         group_by: groupBy,
         limit,
         limit_start,
         as_dict: asDict,
       };
+      fields && queryParams.append("fields", JSON.stringify(fields));
+      filters && queryParams.append("filters", JSON.stringify(filters));
+      orFilters && queryParams.append("or_filters", JSON.stringify(orFilters));
     }
 
     return this.axios
-      .get<{ data: T[] }>(`/api/resource/${doctype}`, { params })
+      .get<{ data: T[] }>(`/api/resource/${doctype}?${queryParams.toString()}`, { params })
       .then((res) => res.data.data)
       .catch((error) => {
         throw {
