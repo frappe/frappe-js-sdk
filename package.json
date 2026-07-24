@@ -1,6 +1,6 @@
 {
   "name": "frappe-js-sdk",
-  "version": "1.14.0",
+  "version": "1.14.1",
   "description": "TypeScript/JavaScript client for Frappe Framework REST API",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",

@@ -52,8 +52,8 @@ export class FrappeFileUpload {
 
     const { isPrivate, folder, file_url, doctype, docname, fieldname, otherData } = args;
 
-    if (isPrivate) {
-      formData.append('is_private', '1');
+    if (isPrivate !== undefined) {
+      formData.append('is_private', isPrivate ? '1' : '0');
     }
     if (folder) {
       formData.append('folder', folder);
