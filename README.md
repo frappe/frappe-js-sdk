@@ -4,10 +4,10 @@ TypeScript/JavaScript library for a [Frappe Framework](https://frappeframework.c
 
 <br />
 <p align="center">
-  <a href="https://github.com/The-Commit-Company/frappe-js-sdk"><img src="https://img.shields.io/maintenance/yes/2026?style=flat-square" /></a>
-  <a href="https://github.com/The-Commit-Company/frappe-js-sdk"><img src="https://img.shields.io/github/license/The-Commit-Company/frappe-js-sdk?style=flat-square" /></a>
+  <a href="https://github.com/frappe/frappe-js-sdk"><img src="https://img.shields.io/maintenance/yes/2026?style=flat-square" /></a>
+  <a href="https://github.com/frappe/frappe-js-sdk"><img src="https://img.shields.io/github/license/frappe/frappe-js-sdk?style=flat-square" /></a>
   <a href="https://www.npmjs.com/package/frappe-js-sdk"><img src="https://img.shields.io/npm/v/frappe-js-sdk?style=flat-square" /></a>
-    <a href="https://www.npmjs.com/package/frappe-js-sdk"><img src="https://img.shields.io/npm/dw/frappe-js-sdk?style=flat-square" /></a>
+  <a href="https://www.npmjs.com/package/frappe-js-sdk"><img src="https://img.shields.io/npm/dw/frappe-js-sdk?style=flat-square" /></a>
 </p>
 
 ## Features
@@ -19,19 +19,7 @@ The library currently supports the following features:
 - 📄 File upload
 - 🤙🏻 API calls
 
-We plan to add the following features in the future:
-
-- Support for common functions like `exists` in the database.
-
 The library uses [Axios](https://axios-http.com) under the hood to make API calls to your Frappe backend.
-
-## Maintainers
-
-| Maintainer     | GitHub                                          | Social                                                       |
-| -------------- | ----------------------------------------------- | ------------------------------------------------------------ |
-| Nikhil Kothari | [nikkothari22](https://github.com/nikkothari22) | [@nik_kothari22](https://twitter.com/nik_kothari22)          |
-| Janhvi Patil   | [janhvipatil](https://github.com/janhvipatil)   | [@janhvipatil_](https://twitter.com/janhvipatil_)           |
-| Sumit Jain     | [sumitjain236](https://github.com/sumitjain236) | [LinkedIn](https://www.linkedin.com/in/sumit-jain-66bb5719a) |
 
 ## Installation
 
