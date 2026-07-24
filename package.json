@@ -17,7 +17,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/The-Commit-Company/frappe-js-sdk.git"
+    "url": "git+https://github.com/frappe/frappe-js-sdk.git"
   },
   "keywords": [
     "Frappe"
@@ -25,9 +25,9 @@
   "author": "Nikhil Kothari",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/The-Commit-Company/frappe-js-sdk/issues"
+    "url": "https://github.com/frappe/frappe-js-sdk/issues"
   },
-  "homepage": "https://github.com/The-Commit-Company/frappe-js-sdk#readme",
+  "homepage": "https://github.com/frappe/frappe-js-sdk#readme",
   "devDependencies": {
     "prettier": "^3.2.5",
     "tslint": "^6.1.3",
