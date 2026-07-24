@@ -1,6 +1,6 @@
 import { AxiosInstance } from 'axios';
 
-import { Error } from '../frappe_app/types';
+import { getFrappeError } from '../utils/error';
 import { FieldName, Filter, FrappeDoc, GetDocListArgs, GetLastDocArgs } from './types';
 
 export class FrappeDB {
@@ -44,13 +44,7 @@ export class FrappeDB {
       .get(`/api/resource/${doctype}/${encodeURIComponent(docname)}`)
       .then((res) => res.data.data)
       .catch((error) => {
-        throw {
-          ...error.response.data,
-          httpStatus: error.response.status,
-          httpStatusText: error.response.statusText,
-          message: 'There was an error while fetching the document.',
-          exception: error.response.data.exception ?? error.response.data.exc_type ?? '',
-        } as Error;
+        throw getFrappeError(error, 'There was an error while fetching the document.');
       });
   }
 
@@ -82,13 +76,7 @@ export class FrappeDB {
       .get<{ data: T[] }>(`/api/resource/${doctype}`, { params })
       .then((res) => res.data.data)
       .catch((error) => {
-        throw {
-          ...error.response.data,
-          httpStatus: error.response.status,
-          httpStatusText: error.response.statusText,
-          message: 'There was an error while fetching the documents.',
-          exception: error.response.data.exception ?? error.response.data.exc_type ?? '',
-        } as Error;
+        throw getFrappeError(error, 'There was an error while fetching the documents.');
       });
   }
 
@@ -102,13 +90,7 @@ export class FrappeDB {
       .post(`/api/resource/${doctype}`, { ...value })
       .then((res) => res.data.data)
       .catch((error) => {
-        throw {
-          ...error.response.data,
-          httpStatus: error.response.status,
-          httpStatusText: error.response.statusText,
-          message: error.response.data.message ?? 'There was an error while creating the document.',
-          exception: error.response.data.exception ?? error.response.data.exc_type ?? '',
-        };
+        throw getFrappeError(error, 'There was an error while creating the document.');
       });
   }
 
@@ -123,13 +105,7 @@ export class FrappeDB {
       .put(`/api/resource/${doctype}/${docname ? encodeURIComponent(docname) : docname}`, { ...value })
       .then((res) => res.data.data)
       .catch((error) => {
-        throw {
-          ...error.response.data,
-          httpStatus: error.response.status,
-          httpStatusText: error.response.statusText,
-          message: error.response.data.message ?? 'There was an error while updating the document.',
-          exception: error.response.data.exception ?? error.response.data.exc_type ?? '',
-        };
+        throw getFrappeError(error, 'There was an error while updating the document.');
       });
   }
 
@@ -144,13 +120,7 @@ export class FrappeDB {
       .delete(`/api/resource/${doctype}/${docname ? encodeURIComponent(docname) : docname}`)
       .then((res) => res.data)
       .catch((error) => {
-        throw {
-          ...error.response.data,
-          httpStatus: error.response.status,
-          httpStatusText: error.response.statusText,
-          message: 'There was an error while deleting the document.',
-          exception: error.response.data.exception ?? error.response.data.exc_type ?? '',
-        } as Error;
+        throw getFrappeError(error, 'There was an error while deleting the document.');
       });
   }
 
@@ -182,13 +152,7 @@ export class FrappeDB {
       .get('/api/method/frappe.client.get_count', { params })
       .then((res) => res.data.message)
       .catch((error) => {
-        throw {
-          ...error.response.data,
-          httpStatus: error.response.status,
-          httpStatusText: error.response.statusText,
-          message: 'There was an error while getting the count.',
-          exception: error.response.data.exception ?? error.response.data.exc_type ?? '',
-        } as Error;
+        throw getFrappeError(error, 'There was an error while getting the count.');
       });
   }
   /**
@@ -246,13 +210,7 @@ export class FrappeDB {
       })
       .then((res) => res.data)
       .catch((error) => {
-        throw {
-          ...error.response.data,
-          httpStatus: error.response.status,
-          httpStatusText: error.response.statusText,
-          message: error.response.data.message ?? 'There was an error while renaming the document.',
-          exception: error.response.data.exception ?? error.response.data.exc_type ?? '',
-        };
+        throw getFrappeError(error, 'There was an error while renaming the document.');
       });
   }
 
@@ -299,13 +257,7 @@ export class FrappeDB {
       .get('/api/method/frappe.client.get_value', { params })
       .then((res) => res.data)
       .catch((error) => {
-        throw {
-          ...error.response.data,
-          httpStatus: error.response.status,
-          httpStatusText: error.response.statusText,
-          message: 'There was an error while getting the value.',
-          exception: error.response.data.exception ?? error.response.data.exc_type ?? '',
-        } as Error;
+        throw getFrappeError(error, 'There was an error while getting the value.');
       });
   }
 
@@ -336,13 +288,7 @@ export class FrappeDB {
       })
       .then((res) => res.data)
       .catch((error) => {
-        throw {
-          ...error.response.data,
-          httpStatus: error.response.status,
-          httpStatusText: error.response.statusText,
-          message: 'There was an error while setting the value.',
-          exception: error.response.data.exception ?? error.response.data.exc_type ?? '',
-        } as Error;
+        throw getFrappeError(error, 'There was an error while setting the value.');
       });
   }
 
@@ -362,13 +308,7 @@ export class FrappeDB {
       .get('/api/method/frappe.client.get_single_value', { params })
       .then((res) => res.data)
       .catch((error) => {
-        throw {
-          ...error.response.data,
-          httpStatus: error.response.status,
-          httpStatusText: error.response.statusText,
-          message: 'There was an error while getting the value of single doctype.',
-          exception: error.response.data.exception ?? error.response.data.exc_type ?? '',
-        } as Error;
+        throw getFrappeError(error, 'There was an error while getting the value of single doctype.');
       });
   }
 
@@ -382,13 +322,7 @@ export class FrappeDB {
       .post('/api/method/frappe.client.submit', { doc })
       .then((res) => res.data.message)
       .catch((error) => {
-        throw {
-          ...error.response.data,
-          httpStatus: error.response.status,
-          httpStatusText: error.response.statusText,
-          message: 'There was an error while submitting the document.',
-          exception: error.response.data.exception ?? error.response.data.exc_type ?? '',
-        } as Error;
+        throw getFrappeError(error, 'There was an error while submitting the document.');
       });
   }
 
@@ -403,13 +337,7 @@ export class FrappeDB {
       .post('/api/method/frappe.client.cancel', { doctype, name })
       .then((res) => res.data)
       .catch((error) => {
-        throw {
-          ...error.response.data,
-          httpStatus: error.response.status,
-          httpStatusText: error.response.statusText,
-          message: 'There was an error while cancelling the document.',
-          exception: error.response.data.exception ?? error.response.data.exc_type ?? '',
-        } as Error;
+        throw getFrappeError(error, 'There was an error while cancelling the document.');
       });
   }
 }

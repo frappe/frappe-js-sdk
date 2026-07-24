@@ -1,6 +1,6 @@
 import { AxiosInstance, AxiosProgressEvent } from 'axios';
 
-import { Error } from '../frappe_app/types';
+import { getFrappeError } from '../utils/error';
 import { FileArgs } from './types';
 import { getRequestHeaders } from '../utils/axios';
 
@@ -89,13 +89,7 @@ export class FrappeFileUpload {
         }
       })
       .catch((error) => {
-        throw {
-          ...error.response.data,
-          httpStatus: error.response.status,
-          httpStatusText: error.response.statusText,
-          message: error.response.data.message ?? 'There was an error while uploading the file.',
-          exception: error.response.data.exception ?? '',
-        } as Error;
+        throw getFrappeError(error, 'There was an error while uploading the file.');
       });
   }
 }

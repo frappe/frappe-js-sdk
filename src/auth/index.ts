@@ -1,6 +1,6 @@
 import { AxiosInstance } from 'axios';
 
-import { Error } from '../frappe_app/types';
+import { getFrappeError } from '../utils/error';
 import { AuthCredentials, AuthResponse, OTPCredentials, UserPassCredentials } from './types';
 
 export class FrappeAuth {
@@ -46,13 +46,7 @@ export class FrappeAuth {
       })
       .then((res) => res.data as AuthResponse)
       .catch((error) => {
-        throw {
-          ...error.response.data,
-          httpStatus: error.response.status,
-          httpStatusText: error.response.statusText,
-          message: error.response.data.message ?? 'There was an error while logging in',
-          exception: error.response.data.exception ?? '',
-        } as Error;
+        throw getFrappeError(error, 'There was an error while logging in');
       });
   }
 
@@ -62,13 +56,7 @@ export class FrappeAuth {
       .get('/api/method/frappe.auth.get_logged_user')
       .then((res) => res.data.message)
       .catch((error) => {
-        throw {
-          ...error.response.data,
-          httpStatus: error.response.status,
-          httpStatusText: error.response.statusText,
-          message: 'There was an error while fetching the logged in user',
-          exception: error.response.data.exception ?? '',
-        } as Error;
+        throw getFrappeError(error, 'There was an error while fetching the logged in user');
       });
   }
 
@@ -80,13 +68,7 @@ export class FrappeAuth {
         return;
       })
       .catch((error) => {
-        throw {
-          ...error.response.data,
-          httpStatus: error.response.status,
-          httpStatusText: error.response.statusText,
-          message: error.response.data.message ?? 'There was an error while logging out',
-          exception: error.response.data.exception ?? '',
-        } as Error;
+        throw getFrappeError(error, 'There was an error while logging out');
       });
   }
 
@@ -101,13 +83,7 @@ export class FrappeAuth {
         return;
       })
       .catch((error) => {
-        throw {
-          ...error.response.data,
-          httpStatus: error.response.status,
-          httpStatusText: error.response.statusText,
-          message: error.response.data.message ?? 'There was an error sending password reset email.',
-          exception: error.response.data.exception ?? '',
-        } as Error;
+        throw getFrappeError(error, 'There was an error sending password reset email.');
       });
   }
 }

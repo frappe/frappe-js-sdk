@@ -1,6 +1,6 @@
 import { AxiosInstance } from 'axios';
 
-import { Error } from '../frappe_app/types';
+import { getFrappeError } from '../utils/error';
 
 export class FrappeCall {
   /** URL of the Frappe App instance */
@@ -53,13 +53,7 @@ export class FrappeCall {
       })
       .then((res) => res.data as T)
       .catch((error) => {
-        throw {
-          ...error.response.data,
-          httpStatus: error.response.status,
-          httpStatusText: error.response.statusText,
-          message: error.response.data.message ?? 'There was an error.',
-          exception: error.response.data.exception ?? '',
-        } as Error;
+        throw getFrappeError(error, 'There was an error.');
       });
   }
 
@@ -69,13 +63,7 @@ export class FrappeCall {
       .post(`/api/method/${path}`, { ...params })
       .then((res) => res.data as T)
       .catch((error) => {
-        throw {
-          ...error.response.data,
-          httpStatus: error.response.status,
-          httpStatusText: error.response.statusText,
-          message: error.response.data.message ?? 'There was an error.',
-          exception: error.response.data.exception ?? '',
-        } as Error;
+        throw getFrappeError(error, 'There was an error.');
       });
   }
 
@@ -85,13 +73,7 @@ export class FrappeCall {
       .put(`/api/method/${path}`, { ...params })
       .then((res) => res.data as T)
       .catch((error) => {
-        throw {
-          ...error.response.data,
-          httpStatus: error.response.status,
-          httpStatusText: error.response.statusText,
-          message: error.response.data.message ?? 'There was an error.',
-          exception: error.response.data.exception ?? '',
-        } as Error;
+        throw getFrappeError(error, 'There was an error.');
       });
   }
 
@@ -101,13 +83,7 @@ export class FrappeCall {
       .delete(`/api/method/${path}`, { params })
       .then((res) => res.data as T)
       .catch((error) => {
-        throw {
-          ...error.response.data,
-          httpStatus: error.response.status,
-          httpStatusText: error.response.statusText,
-          message: error.response.data.message ?? 'There was an error.',
-          exception: error.response.data.exception ?? '',
-        } as Error;
+        throw getFrappeError(error, 'There was an error.');
       });
   }
 }
